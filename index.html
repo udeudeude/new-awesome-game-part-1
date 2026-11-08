@@ -18,7 +18,7 @@ h1{font-size:24px;line-height:1.35;font-weight:500;margin:0 0 19px;color:var(--f
 p{font-size:14px;line-height:1.55;margin:0 0 6px}ul{margin:0 0 20px;padding-left:40px;font-size:14px;line-height:1.75}
 #error{font-size:12px;margin-top:16px}
 #video-shell{position:fixed;inset:0;background:#000;display:none;z-index:20}#video-shell.active{display:block}
-#video{position:absolute;inset:0;width:100%;height:100%;border:0}
+#video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain}
 #fallback{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 14px;border-radius:6px;font:13px Arial,sans-serif;text-decoration:none;white-space:nowrap}
 @media(max-width:600px){#content{top:20.8%;left:24px;transform:none;width:calc(100% - 48px)}#dino{margin-bottom:46px}h1{font-size:24px;line-height:1.4;margin-bottom:17px}p,ul{font-size:14px}#error{font-size:12px}}
 @media(min-width:601px){#content{top:25%}#dino{margin-bottom:32px}h1{font-size:24px}}
@@ -38,7 +38,7 @@ p{font-size:14px;line-height:1.55;margin:0 0 6px}ul{margin:0 0 20px;padding-left
 <div id="error">ERR_INTERNET_DISCONNECTED</div>
 </div>
 </main>
-<div id="video-shell" aria-label="Video player"><iframe id="video" title="Never Gonna Give You Up" allow="autoplay;fullscreen;encrypted-media;picture-in-picture" allowfullscreen playsinline></iframe><a id="fallback" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s">Open video on YouTube</a></div>
+<div id="video-shell" aria-label="Video player"><video id="video" playsinline webkit-playsinline preload="auto" controls><source src="./rickroll.mp4" type="video/mp4"></video><a id="fallback" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s">Open video on YouTube</a></div>
 <script>
 (function(){
 const offline=document.getElementById('offline'),shell=document.getElementById('video-shell'),video=document.getElementById('video');
@@ -46,9 +46,9 @@ const mobile=matchMedia('(pointer:coarse)').matches;
 const title=document.querySelector('h1');
 if(!mobile)title.textContent='No internet';
 let started=false;
-const base='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=42&playsinline=1&rel=0&controls=1';
-/* Pre-create and load the player, but never start audible playback before the user's gesture. */
-video.src=base+'&autoplay=0';
+/* Preload the local clip without starting playback before the gesture. */
+video.load();
+video.addEventListener('error',()=>{document.getElementById('fallback').textContent='Video unavailable: open on YouTube';});
 function start(event){
  if(started)return;
  if(event.type==='keydown'&&![' ','ArrowUp','Enter','Spacebar'].includes(event.key))return;
@@ -57,7 +57,8 @@ function start(event){
  shell.classList.add('active');
  offline.style.display='none';
  document.title='Never Gonna Give You Up';
- video.src=base+'&autoplay=1';
+ video.currentTime=0;video.play().catch(()=>{video.controls=true;});
+ try{video.webkitEnterFullscreen?.();}catch(_){}
  try{const promise=shell.requestFullscreen&&shell.requestFullscreen();if(promise&&promise.catch)promise.catch(()=>{});}catch(_){}
 }
 offline.addEventListener('pointerdown',start);
