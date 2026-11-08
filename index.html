@@ -1,57 +1,68 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fff"><title>chrome://dino</title>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#202124">
+<title>chrome://dino</title>
+<link rel="preconnect" href="https://www.youtube-nocookie.com">
+<link rel="preconnect" href="https://i.ytimg.com">
 <style>
-:root{color-scheme:light dark;--ink:#535353;--bg:#fff}@media(prefers-color-scheme:dark){:root{--ink:#aaa;--bg:#202124}}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
-#game{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(600px,100%);height:150px;cursor:pointer;touch-action:manipulation}
-canvas{display:block;width:100%;height:150px;image-rendering:pixelated}#hint{position:absolute;top:14px;left:0;right:0;text-align:center;font-size:13px;letter-spacing:.05em;pointer-events:none}
-#player{position:fixed;inset:0;display:none;background:#000;z-index:5}#player.on{display:block}iframe{width:100%;height:100%;border:0}
-#open{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:5px;font-size:13px;white-space:nowrap}
+:root{color-scheme:light dark;--bg:#fff;--fg:#5f6368;--dino:#535353}
+@media(prefers-color-scheme:dark){:root{--bg:#202124;--fg:#9aa0a6;--dino:#aaa}}
+*{box-sizing:border-box}html,body{width:100%;min-height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:Arial,Roboto,sans-serif}
+body{overflow:hidden}#offline{position:relative;width:100%;min-height:100dvh;cursor:default;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+#content{position:absolute;top:20.8%;left:50%;width:calc(100% - 48px);max-width:600px;transform:translateX(-50%)}
+#dino{display:block;width:48px;height:52px;image-rendering:pixelated;margin-bottom:46px;cursor:pointer}
+h1{font-size:24px;line-height:1.35;font-weight:500;margin:0 0 19px;color:var(--fg)}
+p{font-size:14px;line-height:1.55;margin:0 0 6px}ul{margin:0 0 20px;padding-left:40px;font-size:14px;line-height:1.75}
+#error{font-size:12px;margin-top:16px}
+#video-shell{position:fixed;inset:0;background:#000;display:none;z-index:20}#video-shell.active{display:block}
+#video{position:absolute;inset:0;width:100%;height:100%;border:0}
+#fallback{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 14px;border-radius:6px;font:13px Arial,sans-serif;text-decoration:none;white-space:nowrap}
+@media(max-width:600px){#content{top:20.8%;left:24px;transform:none;width:calc(100% - 48px)}#dino{margin-bottom:46px}h1{font-size:24px;line-height:1.4;margin-bottom:17px}p,ul{font-size:14px}#error{font-size:12px}}
+@media(min-width:601px){#content{top:25%}#dino{margin-bottom:32px}h1{font-size:24px}}
 </style>
-<main id="game" role="button" tabindex="0" aria-label="Start dinosaur game"><div id="hint">Press space to play</div><canvas id="scene"></canvas></main>
-<section id="player"><iframe id="video" title="Video" allow="autoplay;fullscreen;encrypted-media;picture-in-picture" allowfullscreen></iframe><a id="open" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Watch fullscreen on YouTube</a></section>
+</head>
+<body>
+<main id="offline" aria-label="Dinosaur offline game">
+<div id="content">
+<svg id="dino" viewBox="0 0 48 52" xmlns="http://www.w3.org/2000/svg" aria-label="Dinosaur" role="img" shape-rendering="crispEdges">
+<path fill="var(--dino)" d="M23 1h20v4h2v14h-9v4h-6v4h-4v6h-4v5h-4v7h-4v-7h-4v-4H6v-4H3v-6H1v-10h3v10h3v3h4v-3h4v-5h4v-5h4zM17 43h5v5h-2v3h-5v-3h2zM27 37h5v9h-3v5h-5v-3h3z"/>
+<rect x="29" y="6" width="3" height="3" fill="var(--bg)"/>
+<rect x="35" y="18" width="10" height="3" fill="var(--bg)"/>
+</svg>
+<h1>Tap the dino to play</h1>
+<p>Try:</p>
+<ul><li>Turning off airplane mode</li><li>Turning on mobile data or Wi-Fi</li><li>Checking the signal in your area</li></ul>
+<div id="error">ERR_INTERNET_DISCONNECTED</div>
+</div>
+</main>
+<div id="video-shell" aria-label="Video player"><iframe id="video" title="Never Gonna Give You Up" allow="autoplay;fullscreen;encrypted-media;picture-in-picture" allowfullscreen playsinline></iframe><a id="fallback" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s">Open video on YouTube</a></div>
 <script>
-(()=>{const game=document.querySelector('#game'),canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),player=document.querySelector('#player'),video=document.querySelector('#video'),mobile=matchMedia('(pointer:coarse)').matches;let triggered=false;
-document.querySelector('#hint').textContent=mobile?'Tap to play':'Press space to play';
-const dino=[
-'..................########........',
-'..................##########......',
-'..................###########.....',
-'..................###..######.....',
-'..................###########.....',
-'..................###########.....',
-'..................###########.....',
-'..................##########......',
-'..................########........',
-'..................####.............',
-'..................########........',
-'..................########........',
-'..................####.............',
-'..................####.............',
-'##...............#####.............',
-'###.............######.............',
-'####...........#######.............',
-'#####.........########.............',
-'######.......#########.............',
-'#######.....##########.............',
-'########...###########.............',
-'######################.............',
-'.#####################.............',
-'..###################..............',
-'...#################...............',
-'....###############................',
-'.....#############.................',
-'......###########..................',
-'.......#########...................',
-'........####.####...................',
-'........###...###...................',
-'........###...###...................',
-'........###...###...................',
-'........###...###...................',
-'........###...###...................',
-'........###...###...................',
-'........###...###...................'];
-function draw(){const w=game.clientWidth,s=devicePixelRatio||1;canvas.width=Math.round(w*s);canvas.height=Math.round(150*s);ctx.setTransform(s,0,0,s,0,0);ctx.clearRect(0,0,w,150);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ink');const x=mobile?Math.max(22,Math.floor(w*.13)):48,y=82,p=1.25;for(let r=0;r<dino.length;r++)for(let c=0;c<dino[r].length;c++)if(dino[r][c]==='#')ctx.fillRect(Math.round(x+c*p),Math.round(y+(r-30)*p),Math.ceil(p),Math.ceil(p));ctx.fillRect(0,127,w,1);for(let i=0;i<w;i+=57)ctx.fillRect(i+17,129,2,1)}
-function start(e){if(triggered)return;if(e.type==='keydown'&&![' ','ArrowUp','Enter','Spacebar'].includes(e.key))return;e.preventDefault();triggered=true;player.classList.add('on');game.hidden=true;document.title='Never Gonna Give You Up';video.src='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=0&controls=1&rel=0';try{player.requestFullscreen?.()?.catch(()=>{})}catch(_){}}
-game.addEventListener('pointerdown',start);window.addEventListener('keydown',start);window.addEventListener('resize',draw);matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',draw);draw()})();
-</script></html>
+(function(){
+const offline=document.getElementById('offline'),shell=document.getElementById('video-shell'),video=document.getElementById('video');
+const mobile=matchMedia('(pointer:coarse)').matches;
+const title=document.querySelector('h1');
+if(!mobile)title.textContent='No internet';
+let started=false;
+const base='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?start=42&playsinline=1&rel=0&controls=1';
+/* Pre-create and load the player, but never start audible playback before the user's gesture. */
+video.src=base+'&autoplay=0';
+function start(event){
+ if(started)return;
+ if(event.type==='keydown'&&![' ','ArrowUp','Enter','Spacebar'].includes(event.key))return;
+ if(event.type==='keydown')event.preventDefault();
+ started=true;
+ shell.classList.add('active');
+ offline.style.display='none';
+ document.title='Never Gonna Give You Up';
+ video.src=base+'&autoplay=1';
+ try{const promise=shell.requestFullscreen&&shell.requestFullscreen();if(promise&&promise.catch)promise.catch(()=>{});}catch(_){}
+}
+offline.addEventListener('pointerdown',start);
+window.addEventListener('keydown',start);
+})();
+</script>
+</body>
+</html>
