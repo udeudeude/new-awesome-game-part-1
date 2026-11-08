@@ -5,32 +5,35 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#202124">
 <title>chrome://dino</title>
-<link rel="preconnect" href="https://www.youtube-nocookie.com">
-<link rel="preconnect" href="https://i.ytimg.com">
 <style>
-:root{color-scheme:light dark;--bg:#fff;--fg:#5f6368;--dino:#535353}
-@media(prefers-color-scheme:dark){:root{--bg:#202124;--fg:#9aa0a6;--dino:#aaa}}
+:root{color-scheme:light dark;--bg:#fff;--fg:#5f6368;--dino:#535353;--outline:#202124}
+@media(prefers-color-scheme:dark){:root{--bg:#202124;--fg:#9aa0a6;--dino:#aaa;--outline:#000}}
 *{box-sizing:border-box}html,body{width:100%;min-height:100%;margin:0;background:var(--bg);color:var(--fg);font-family:Arial,Roboto,sans-serif}
 body{overflow:hidden}#offline{position:relative;width:100%;min-height:100dvh;cursor:default;user-select:none;-webkit-user-select:none;touch-action:manipulation}
 #content{position:absolute;top:20.8%;left:50%;width:calc(100% - 48px);max-width:600px;transform:translateX(-50%)}
-#dino{display:block;width:48px;height:52px;image-rendering:pixelated;margin-bottom:46px;cursor:pointer}
+#dino{display:block;width:52px;height:58px;image-rendering:pixelated;margin-bottom:40px;cursor:pointer}
 h1{font-size:24px;line-height:1.35;font-weight:500;margin:0 0 19px;color:var(--fg)}
 p{font-size:14px;line-height:1.55;margin:0 0 6px}ul{margin:0 0 20px;padding-left:40px;font-size:14px;line-height:1.75}
 #error{font-size:12px;margin-top:16px}
 #video-shell{position:fixed;inset:0;background:#000;display:none;z-index:20}#video-shell.active{display:block}
 #video{position:absolute;inset:0;width:100%;height:100%;border:0;object-fit:contain}
 #fallback{position:absolute;bottom:calc(12px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 14px;border-radius:6px;font:13px Arial,sans-serif;text-decoration:none;white-space:nowrap}
-@media(max-width:600px){#content{top:20.8%;left:24px;transform:none;width:calc(100% - 48px)}#dino{margin-bottom:46px}h1{font-size:24px;line-height:1.4;margin-bottom:17px}p,ul{font-size:14px}#error{font-size:12px}}
+@media(max-width:600px){#content{top:20.8%;left:24px;transform:none;width:calc(100% - 48px)}#dino{margin-bottom:40px}h1{font-size:24px;line-height:1.4;margin-bottom:17px}p,ul{font-size:14px}#error{font-size:12px}}
 @media(min-width:601px){#content{top:25%}#dino{margin-bottom:32px}h1{font-size:24px}}
 </style>
 </head>
 <body>
 <main id="offline" aria-label="Dinosaur offline game">
 <div id="content">
-<svg id="dino" viewBox="0 0 48 52" xmlns="http://www.w3.org/2000/svg" aria-label="Dinosaur" role="img" shape-rendering="crispEdges">
-<path fill="var(--dino)" d="M23 1h20v4h2v14h-9v4h-6v4h-4v6h-4v5h-4v7h-4v-7h-4v-4H6v-4H3v-6H1v-10h3v10h3v3h4v-3h4v-5h4v-5h4zM17 43h5v5h-2v3h-5v-3h2zM27 37h5v9h-3v5h-5v-3h3z"/>
-<rect x="29" y="6" width="3" height="3" fill="var(--bg)"/>
-<rect x="35" y="18" width="10" height="3" fill="var(--bg)"/>
+<svg id="dino" viewBox="0 0 52 58" xmlns="http://www.w3.org/2000/svg" aria-label="Dinosaur" role="img" shape-rendering="crispEdges">
+<!-- Pixel-stepped outline and two distinct legs, matching the offline dinosaur silhouette. -->
+<path d="M24 2H47V5H49V20H40V24H34V28H31V34H27V39H24V47H28V54H23V48H20V43H17V54H12V48H9V44H6V40H4V34H2V21H5V31H8V34H12V31H16V27H20V22H23V17H24Z"
+ fill="var(--dino)" stroke="var(--outline)" stroke-width="2.5" stroke-linejoin="miter"/>
+<path d="M31 21H48V24H39V27H34" fill="none" stroke="var(--outline)" stroke-width="2.5"/>
+<rect x="31" y="8" width="2.5" height="2.5" fill="var(--outline)"/>
+<path d="M4 49H13M29 49H51" stroke="var(--fg)" stroke-width="1" opacity=".8"/>
+<rect x="2" y="54" width="3" height="1" fill="var(--fg)"/>
+<rect x="49" y="55" width="2" height="1" fill="var(--fg)"/>
 </svg>
 <h1>Tap the dino to play</h1>
 <p>Try:</p>
@@ -38,7 +41,7 @@ p{font-size:14px;line-height:1.55;margin:0 0 6px}ul{margin:0 0 20px;padding-left
 <div id="error">ERR_INTERNET_DISCONNECTED</div>
 </div>
 </main>
-<div id="video-shell" aria-label="Video player"><video id="video" playsinline webkit-playsinline preload="auto" controls><source src="./rickroll.mov" type="video/mp4"></video><a id="fallback" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s">Open video on YouTube</a></div>
+<div id="video-shell" aria-label="Video player"><video id="video" playsinline webkit-playsinline preload="auto" controls><source src="./rickroll.mov" type="video/quicktime"></video><a id="fallback" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&t=42s">Open video on YouTube</a></div>
 <script>
 (function(){
 const offline=document.getElementById('offline'),shell=document.getElementById('video-shell'),video=document.getElementById('video');
