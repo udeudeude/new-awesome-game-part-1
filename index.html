@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fff"><title>chrome://dino</title>
+<style>
+:root{color-scheme:light dark;--ink:#535353;--bg:#fff}@media(prefers-color-scheme:dark){:root{--ink:#aaa;--bg:#202124}}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:Arial,sans-serif}
+#game{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:min(600px,100%);height:150px;cursor:pointer;touch-action:manipulation}
+canvas{display:block;width:100%;height:150px;image-rendering:pixelated}#hint{position:absolute;top:14px;left:0;right:0;text-align:center;font-size:13px;letter-spacing:.05em;pointer-events:none}
+#player{position:fixed;inset:0;display:none;background:#000;z-index:5}#player.on{display:block}iframe{width:100%;height:100%;border:0}
+#open{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 14px;border-radius:5px;font-size:13px;white-space:nowrap}
+</style>
+<main id="game" role="button" tabindex="0" aria-label="Start dinosaur game"><div id="hint">Press space to play</div><canvas id="scene"></canvas></main>
+<section id="player"><iframe id="video" title="Video" allow="autoplay;fullscreen;encrypted-media;picture-in-picture" allowfullscreen></iframe><a id="open" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">Watch fullscreen on YouTube</a></section>
+<script>
+(()=>{const game=document.querySelector('#game'),canvas=document.querySelector('canvas'),ctx=canvas.getContext('2d'),player=document.querySelector('#player'),video=document.querySelector('#video'),mobile=matchMedia('(pointer:coarse)').matches;let triggered=false;
+document.querySelector('#hint').textContent=mobile?'Tap to play':'Press space to play';
+const dino=[
+'..................########........',
+'..................##########......',
+'..................###########.....',
+'..................###..######.....',
+'..................###########.....',
+'..................###########.....',
+'..................###########.....',
+'..................##########......',
+'..................########........',
+'..................####.............',
+'..................########........',
+'..................########........',
+'..................####.............',
+'..................####.............',
+'##...............#####.............',
+'###.............######.............',
+'####...........#######.............',
+'#####.........########.............',
+'######.......#########.............',
+'#######.....##########.............',
+'########...###########.............',
+'######################.............',
+'.#####################.............',
+'..###################..............',
+'...#################...............',
+'....###############................',
+'.....#############.................',
+'......###########..................',
+'.......#########...................',
+'........####.####...................',
+'........###...###...................',
+'........###...###...................',
+'........###...###...................',
+'........###...###...................',
+'........###...###...................',
+'........###...###...................',
+'........###...###...................'];
+function draw(){const w=game.clientWidth,s=devicePixelRatio||1;canvas.width=Math.round(w*s);canvas.height=Math.round(150*s);ctx.setTransform(s,0,0,s,0,0);ctx.clearRect(0,0,w,150);ctx.fillStyle=getComputedStyle(document.documentElement).getPropertyValue('--ink');const x=mobile?Math.max(22,Math.floor(w*.13)):48,y=82,p=1.25;for(let r=0;r<dino.length;r++)for(let c=0;c<dino[r].length;c++)if(dino[r][c]==='#')ctx.fillRect(Math.round(x+c*p),Math.round(y+(r-30)*p),Math.ceil(p),Math.ceil(p));ctx.fillRect(0,127,w,1);for(let i=0;i<w;i+=57)ctx.fillRect(i+17,129,2,1)}
+function start(e){if(triggered)return;if(e.type==='keydown'&&![' ','ArrowUp','Enter','Spacebar'].includes(e.key))return;e.preventDefault();triggered=true;player.classList.add('on');game.hidden=true;document.title='Never Gonna Give You Up';video.src='https://www.youtube-nocookie.com/embed/dQw4w9WgXcQ?autoplay=1&playsinline=0&controls=1&rel=0';try{player.requestFullscreen?.()?.catch(()=>{})}catch(_){}}
+game.addEventListener('pointerdown',start);window.addEventListener('keydown',start);window.addEventListener('resize',draw);matchMedia('(prefers-color-scheme:dark)').addEventListener?.('change',draw);draw()})();
+</script></html>
